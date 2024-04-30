@@ -1,0 +1,1044 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>BJJ Insights Map :: Created by GEOCADDER</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700"
+      rel="stylesheet"
+    />
+    <!-- Mapbox GL JS -->
+    <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
+    <link
+      href="https://api.tiles.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css"
+      rel="stylesheet"
+    />
+    <!-- Geocoder plugin -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://code.jquery.com/jquery-3.2.0.min.js"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css"
+      type="text/css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+    
+    <!-- Turf.js plugin -->
+    <script src="https://npmcdn.com/@turf/turf/turf.min.js"></script>
+    <style>
+      /* body {
+  color: #404040;
+  font: 400 15px/22px 'Source Sans Pro', 'Helvetica Neue', Sans-serif;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+} */
+
+      .sidebar {
+        font-family: "Raleway", sans-serif;
+        position: absolute;
+        width: 30%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        overflow: hidden;
+        border-right: 1px solid rgba(0, 0, 0, 0.25);
+      }
+
+      .pad2 {
+        padding: 20px;
+      }
+
+      .map {
+        position: absolute;
+        left: 30%;
+        width: 70%;
+        top: 0;
+        bottom: 0;
+        height: 100%;
+      }
+
+      .fa-star,
+      .fa-star-half-o,
+      .fa-star-o {
+        color: #fbbc05;
+      }
+
+      .fa-home,
+      .fa-location-arrow,
+      .fa-smile-o {
+        color: #a4161a;
+      }
+
+      h1 {
+        font-size: 22px;
+        margin: 0;
+        font-weight: 400;
+        line-height: 20px;
+        padding: 20px 2px;
+      }
+
+      a {
+        color: #404040;
+        text-decoration: none;
+      }
+
+      a:hover {
+        color: #101010;
+      }
+
+      .heading {
+        border-bottom: 1px solid #eee;
+        min-height: 133px;
+        line-height: 60px;
+        padding: 0 10px;
+        background-color: #000000;
+        color: #ffffff;
+      }
+
+      heading > h1 {
+        font-family: "Raleway", sans-serif;
+      }
+
+      .listings {
+        height: 100%;
+        overflow: auto;
+        padding-bottom: 60px;
+        background-color: #ffffff;
+      }
+
+      .listings .item {
+        display: block;
+        border-bottom: 1px solid #eee;
+        padding: 10px;
+        text-decoration: none;
+      }
+
+      .listings .item:last-child {
+        margin-bottom: 160px;
+      }
+
+      .listings .item:hover {
+        background-color: #f0eaea;
+        cursor: pointer;
+      }
+
+      .listings .item:last-child {
+        border-bottom: none;
+      }
+
+      .listings .item .title {
+        display: block;
+        color: #a4161a;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      .listings .item .title small {
+        font-weight: 400;
+      }
+
+      /* .listings .item.active .title, .listings .item .title:hover {
+  color: #eeeadb;
+} */
+
+      .listings .item.active {
+        background-color: #f8f8f8;
+      }
+
+      ::-webkit-scrollbar {
+        width: 3px;
+        height: 3px;
+        border-left: 0;
+        background: rgba(0, 0, 0, 0.1);
+      }
+
+      ::-webkit-scrollbar-track {
+        background: none;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: #eeeadb;
+        border-radius: 0;
+      }
+
+      .marker {
+        border: none;
+        cursor: pointer;
+        background-repeat: no-repeat;
+      }
+
+      .clearfix {
+        display: block;
+      }
+
+      .clearfix:after {
+        content: ".";
+        display: block;
+        height: 0;
+        clear: both;
+        visibility: hidden;
+      }
+
+      /* Marker tweaks */
+
+      .mapboxgl-popup {
+        padding-bottom: 50px;
+      }
+
+      img.popup-image {
+        margin-top: 5px;
+        margin-bottom: 10px;
+        width: 95%;
+        border-radius: 5px;
+      }
+
+      .mapboxgl-popup-close-button {
+        display: none;
+      }
+
+      .mapboxgl-popup-content {
+        font: 400 15px/22px "Raleway", "Helvetica Neue", Sans-serif;
+        padding: 0;
+        width: 250px;
+      }
+
+      .mapboxgl-popup-content-wrapper {
+        padding: 1%;
+      }
+
+      .mapboxgl-popup-content h3.geocadder {
+        background: #000000 !important;
+        color: #fff;
+        margin: 0;
+        display: block;
+        padding: 10px;
+        border-radius: 3px 3px 0 0;
+        font-weight: 700;
+        margin-top: -15px;
+        font-size: 17px !important;
+      }
+
+      #geocoder > div > input{
+        padding-left: 33px;
+      }
+
+      div.mapboxgl-popup-content > h3 > a {
+        color: #ffffff;
+      }
+
+      .mapboxgl-popup-content h4 {
+        margin: 0;
+        display: block;
+        padding: 10px 10px 10px 10px;
+        font-weight: 400;
+      }
+
+      .mapboxgl-popup-content div {
+        padding: 10px;
+      }
+
+      .mapboxgl-container .leaflet-marker-icon {
+        cursor: pointer;
+      }
+
+      .mapboxgl-popup-anchor-top > .mapboxgl-popup-content {
+        margin-top: 15px;
+      }
+
+      .mapboxgl-popup-anchor-top > .mapboxgl-popup-tip {
+        border-bottom-color: #eeeadb;
+      }
+
+      .mapboxgl-ctrl-geocoder {
+        border: 2px solid #eeeadb;
+        border-radius: 0;
+        position: relative;
+        top: 0;
+        width: 100%;
+        margin-top: 0;
+        border: 0;
+      }
+
+      .mapboxgl-ctrl-geocoder--input {
+        font-family: "Raleway", sans-serif;
+        width: 100%;
+        border: 0;
+        background-color: #ffffff;
+        margin: 0;
+        height: 50px;
+        color: #404040;
+        padding: 6px 45px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+      }
+
+      .mapboxgl-ctrl-geocoder--icon {
+        top: 16px;
+      }
+
+      .mapboxgl-ctrl-geocoder > div {
+        min-width: 100%;
+        margin-left: 0;
+      }
+
+      .industry-logo {
+        width: 16px;
+        height: 16px;
+        margin-left: 14px;
+      }
+
+      div.phone-directions {
+        display: block;
+        padding: 0;
+        margin-top: 10px;
+        margin-left: 10px;
+      }
+
+      div.direction,
+      div.website {
+        margin: 0;
+        padding: 0;
+        font-size: 14px;
+      }
+
+      div.direction a,
+      div.website a {
+        outline: none;
+      }
+
+      div.order-button {
+        display: block;
+        width: 170px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+      }
+
+      div.order-button a {
+        background-color: #000000;
+        color: #ffffff;
+        padding: 10px;
+        border-radius: 12px;
+        font-size: 12px;
+        line-height: 1.2em;
+        font-style: normal;
+        font-weight: 600;
+        text-align: center;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+
+      div.order-button a:hover {
+        border: 1px solid #000000;
+        background-color: #ffffff;
+        color: #000000;
+      }
+
+      /* Responsiveness */
+      @media screen and (max-width: 1327px) and (min-width: 814px) {
+      }
+
+      @media screen and (max-width: 813px) and (min-width: 631px) {
+      }
+
+      @media screen and (max-width: 630px) and (min-width: 456px) {
+        #map {
+          position: absolute;
+          left: 0;
+          width: 100%;
+          height: 70%;
+        }
+        .sidebar {
+          top: 70%;
+          height: 30%;
+          width: 100%;
+        }
+
+        .sidebar h1 {
+          font-size: 14px;
+          margin: 0;
+          padding-top: 13px;
+          line-height: 0;
+        }
+        .mapboxgl-ctrl-geocoder {
+          width: 100%;
+        }
+        #geocoder > div > input {
+          font-size: 14px;
+          height: 30px;
+          line-height: 0;
+          width: 100%;
+        }
+
+        .mapboxgl-ctrl-geocoder--icon {
+          top: 5px;
+        }
+        .mapboxgl-popup-content {
+          height: 150px;
+          width: 150px;
+          height: 30px;
+        }
+        .sidebar > .heading {
+          min-height: 73px;
+        }
+
+        div.phone a,
+        div.direction a,
+        div.website a {
+          font-size: 12px;
+        }
+        .listings .item .title {
+          font-size: 13px !important;
+          margin-bottom: -10px;
+        }
+      }
+
+      @media screen and (max-width: 455px) and (min-width: 400px) {
+        #map {
+          position: absolute;
+          left: 0;
+          width: 100%;
+          height: 70%;
+        }
+
+        .sidebar {
+          top: 70%;
+          height: 30%;
+          width: 100%;
+        }
+        .sidebar h1 {
+          font-size: 14px;
+          margin: 0;
+          padding-top: 13px;
+          line-height: 0;
+        }
+        .mapboxgl-ctrl-geocoder {
+          width: 100%;
+        }
+        #geocoder > div > input {
+          font-size: 14px;
+          height: 30px;
+          line-height: 0;
+          width: 100%;
+        }
+        .mapboxgl-ctrl-geocoder--icon {
+          top: 5px;
+        }
+        .sidebar > .heading {
+          min-height: 73px;
+        }
+
+        div.phone a,
+        div.direction a,
+        div.website a {
+          font-size: 12px;
+        }
+        .listings .item .title {
+          font-size: 13px !important;
+          margin-bottom: -10px;
+        }
+      }
+
+      @media screen and (max-width: 399px) {
+        #map {
+          position: absolute;
+          left: 0;
+          width: 100%;
+          height: 70%;
+        }
+
+        .sidebar {
+          top: 70%;
+          height: 30%;
+          width: 100%;
+        }
+        .sidebar h1 {
+          font-size: 14px;
+          margin: 0;
+          padding-top: 13px;
+          line-height: 0;
+        }
+        .mapboxgl-ctrl-geocoder {
+          width: 100%;
+        }
+        #geocoder > div > input {
+          font-size: 14px;
+          height: 30px;
+          line-height: 0;
+          width: 100%;
+        }
+        .mapboxgl-ctrl-geocoder--icon {
+          top: 5px;
+        }
+        .sidebar > .heading {
+          min-height: 73px;
+        }
+
+        div.phone a,
+        div.direction a,
+        div.website a {
+          font-size: 12px;
+        }
+        .listings .item .title {
+          font-size: 13px !important;
+          margin-bottom: -10px;
+        }
+      }
+
+      /* End responsiveness */
+    </style>
+  </head>
+
+  <body>
+    <div class="sidebar">
+      <div class="heading">
+        <h1>Find a gym</h1>
+        <div id="geocoder" class="geocoder"></div>
+      </div>
+      <div id="listings" class="listings"></div>
+    </div>
+    <div id="map" class="map"></div>
+    <script>
+      
+      /* This will let you use the .remove() function later on */
+      if (!("remove" in Element.prototype)) {
+        Element.prototype.remove = function () {
+          if (this.parentNode) {
+            this.parentNode.removeChild(this);
+          }
+        };
+      }
+      
+      const bounds = [
+        [111.28367734257353, -43.580328925086256], // Southwest coordinates
+        [153.78743723700643, -10.695725271701662], // Northeast coordinates
+      ];
+      
+      mapboxgl.accessToken =
+        "pk.eyJ1IjoicmFtamVsaWNvIiwiYSI6ImNsdmYwaHIwcDBmN2wybW14NzJnMHQ4a2MifQ.cYNpZ4zCfpsioLhEo_3M8Q";
+      
+      /**
+       * Add the map to the page
+       */
+      var map = new mapboxgl.Map({
+        container: "map",
+        style: "mapbox://styles/ramjelico/clvkxgiac008q01pcbcsn80y2",
+        zoom: 1,
+        cooperativeGestures: true,
+        customAttribution:
+          'created by <a style="padding: 0 3px 0 3px; color:#FFFFFF; background-color: #7d7deb;" href=http://www.geocadder.bg/en/>GEOCADDER</a>',
+      });
+      
+      var isZipFound = false;
+      
+      var markersCoordinates = [];
+      
+      // Add zoom and rotation controls to the map.
+      map.addControl(new mapboxgl.NavigationControl());
+      
+      /**
+       * Wait until the map loads to make changes to the map.
+       */
+      map.on("load", function (e) {
+        map.fitBounds(bounds);
+      
+        $.getJSON(
+          "https://sheets.googleapis.com/v4/spreadsheets/1VbdlDF8ISHpER_cAUonutQw--tX0mz8l-0rqYgav__4/values/Sheet1!A2:L3000?majorDimension=ROWS&key=AIzaSyC7oHa-6USUppa1IVYATiRBDvU20GVtoBw",
+          function (stores) {
+            stores.values.forEach(function (store, i) {
+              store[0] = i; // here is the Id of the store
+              markersCoordinates.push([store[7], store[6]]);
+            });
+      
+            // fit bounds to all markers
+            // var bounds = markersCoordinates.reduce(function (bounds, coord) {
+            //   return bounds.extend(coord);
+            // }, new mapboxgl.LngLatBounds(
+            //   markersCoordinates[1],
+            //   markersCoordinates[0]
+            // ));
+      
+            // close all opened popups
+            $(".marker").click(function () {
+              $(".mapboxgl-popup").remove();
+            });
+      
+            $(".mapboxgl-canvas").click(function () {
+              $(".mapboxgl-popup").remove();
+            });
+      
+            // map.fitBounds(bounds, {
+            //   padding: 20,
+            // });
+      
+            // map.addSource('places', {
+            //     'type': 'geojson',
+            //     'data': stores
+            // });
+      
+            /**
+             * Create a new MapboxGeocoder instance.
+             */
+            // Add the control to the map.
+            const geocoder = new MapboxGeocoder({
+              accessToken: mapboxgl.accessToken,
+              mapboxgl: mapboxgl,
+              countries: "au",
+              language: "en-AU",
+              placeholder: "ZIP",
+              marker: false,
+            });
+      
+            /**
+             * Add all the things to the page:
+             * - The location listings on the side of the page
+             * - The search box (MapboxGeocoder) onto the map
+             * - The markers onto the map
+             */
+            buildLocationList(stores);
+      
+            document.getElementById("geocoder").appendChild(geocoder.onAdd(map));
+      
+            addMarkers();
+      
+            /**
+             * Listen for when a geocoder result is returned. When one is returned:
+             * - Calculate distances
+             * - Sort stores by distance
+             * - Rebuild the listings
+             * - Adjust the map camera
+             * - Open a popup for the closest store
+             * - Highlight the listing for the closest store.
+             */
+            var currentStoreWithGivenZip;
+            lastGeocode = ""; // fixing the geocode running twice
+            geocoder.on("result", function adv(ev) {
+              /* Get the coordinate of the search result */
+              var searchResult = ev.result.geometry;
+              var zipCodeTextResult = ev.result.text;
+      
+              /**
+               * Calculate distances:
+               * For each store, use turf.disance to calculate the distance
+               * in miles between the searchResult and the store. Assign the
+               * calculated value to a property called `distance`.
+               */
+              var options = { units: "miles" };
+              stores.values.forEach(function (store) {
+                // Object.defineProperty(store.properties, 'distance', {
+                //     value: turf.distance(searchResult, [store[7], store[6]], options),
+                //     writable: true,
+                //     enumerable: true,
+                //     configurable: true
+                // });
+      
+                if (store[9]) {
+                  var zipCodesForDealerArray = store[9].split(", ");
+                  zipCodesForDealerArray.forEach(function (zipCodesForDealer) {
+                    if (zipCodeTextResult === zipCodesForDealer) {
+                      isZipFound = true;
+                      currentStoreWithGivenZip = store;
+                      // map.flyTo({
+                      //   center: [store[7], store[6]],
+                      //   zoom: 15,
+                      // });
+                    }
+                  });
+                }
+      
+                store[10] = turf.distance(
+                  searchResult,
+                  [store[7], store[6]],
+                  options
+                );
+              });
+      
+              /**
+               * Sort stores by distance from closest to the `searchResult`
+               * to furthest.
+               */
+              stores.values.sort(function (a, b) {
+                if (a[10] > b[10]) {
+                  return 1;
+                }
+                if (a[10] < b[10]) {
+                  return -1;
+                }
+                return 0; // a must be equal to b
+              });
+      
+              if (currentStoreWithGivenZip) {
+                var foundIdx = stores.values.findIndex(
+                  (el) => el[0] == currentStoreWithGivenZip[0]
+                );
+                stores.values.splice(foundIdx, 1);
+                stores.values.unshift(currentStoreWithGivenZip);
+              }
+      
+              // if (isZipFound === false) {
+              //   map.flyTo({
+              //     center: [stores.values[0][7], stores.values[0][6]],
+              //     zoom: 15,
+              //   });
+              // }
+              map.flyTo({
+                center: [stores.values[0][7], stores.values[0][6]],
+                zoom: 15,
+              });
+      
+              /**
+               * Rebuild the listings:
+               * Remove the existing listings and build the location
+               * list again using the newly sorted stores.
+               */
+              var listings = document.getElementById("listings");
+              while (listings.firstChild) {
+                listings.removeChild(listings.firstChild);
+              }
+              buildLocationList(stores);
+      
+              /* Open a popup for the closest store. */
+              createPopUp(stores.values[0]);
+      
+              /** Highlight the listing for the closest store. */
+              var activeListing = document.getElementById(
+                "listing-" + stores.values[0][0]
+              );
+              activeListing.classList.add("active");
+      
+              /**
+               * Adjust the map camera:
+               * Get a bbox that contains both the geocoder result and
+               * the closest store. Fit the bounds to that bbox.
+               */
+              // var bbox = getBbox(stores, 0, searchResult);
+              // map.fitBounds(bbox, {
+              //   padding: 100,
+              // });
+              currentStoreWithGivenZip = ""; // reset
+            });
+      
+            /**
+             * Add a marker to the map for every store listing.
+             **/
+            function addMarkers() {
+              /* For each feature in the GeoJSON object above: */
+              stores.values.forEach(function (marker) {
+                var markerIconImage = "https://bjjinsights.com/wp-content/uploads/bjj-logo-20-20.webp";
+                // if (markerIconImage.indexOf("open?id") === -1) {
+                //   markerIconImage = markerIconImage.replace("file/d/", "uc?id=");
+                //   markerIconImage = markerIconImage.replace(
+                //     "/view?usp=share_link",
+                //     ""
+                //   );
+                // } else {
+                //   markerIconImage = markerIconImage.replace("open?id=", "uc?id=");
+                // }
+      
+                /* Create a div element for the marker. */
+                var el = document.createElement("div");
+                /* Assign a unique `id` to the marker. */
+                el.id = "marker-" + marker[0];
+                /* Assign the `marker` class to each marker for styling. */
+                el.className = "marker";
+      
+                el.style.backgroundImage = "url(" + markerIconImage + ")";
+                el.style.width = "20px";
+                el.style.height = "20px";
+      
+                /**
+                 * Create a marker using the div element
+                 * defined above and add it to the map.
+                 **/
+                new mapboxgl.Marker(el, { offset: [0, -23] })
+                  .setLngLat([marker[7], marker[6]])
+                  .addTo(map);
+      
+                /**
+                 * Listen to the element and when it is clicked, do three things:
+                 * 1. Fly to the point
+                 * 2. Close all other popups and display popup for clicked store
+                 * 3. Highlight listing in sidebar (and remove highlight for all other listings)
+                 **/
+                el.addEventListener("click", function (e) {
+                  e.stopPropagation();
+                  e.preventDefault();
+
+                  flyToStore(marker);
+                  createPopUp(marker);
+                  var activeItem = document.getElementsByClassName("active");
+                  e.stopPropagation();
+                  if (activeItem[0]) {
+                    activeItem[0].classList.remove("active");
+                  }
+                  var listing = document.getElementById("listing-" + marker[0]);
+                  listing.classList.add("active");
+                });
+              });
+            }
+          }
+        );
+      });
+      
+      /**
+       * Using the coordinates (lng, lat) for
+       * (1) the search result and
+       * (2) the closest store
+       * construct a bbox that will contain both points
+       */
+      
+      // function getBbox(sortedStores, storeIdentifier, searchResult) {
+      //   var lats = [
+      //     sortedStores.values[storeIdentifier][6],
+      //     searchResult.coordinates[1],
+      //   ];
+      //   var lons = [
+      //     sortedStores.values[storeIdentifier][7],
+      //     searchResult.coordinates[0],
+      //   ];
+      //   var sortedLons = lons.sort(function (a, b) {
+      //     if (a > b) {
+      //       return 1;
+      //     }
+      //     if (a[10] < b[10]) {
+      //       return -1;
+      //     }
+      //     return 0;
+      //   });
+      //   var sortedLats = lats.sort(function (a, b) {
+      //     if (a > b) {
+      //       return 1;
+      //     }
+      //     if (a[10] < b[10]) {
+      //       return -1;
+      //     }
+      //     return 0;
+      //   });
+      //   return [
+      //     [sortedLons[0], sortedLats[0]],
+      //     [sortedLons[1], sortedLats[1]],
+      //   ];
+      // }
+      
+      /**
+       * Add a listing for each store to the sidebar.
+       **/
+      function buildLocationList(data) {
+        data.values.forEach(function (store, i) {
+          /**
+           * Create a shortcut for `store.properties`,
+           * which will be used several times below.
+           **/
+          // var prop = store.values;
+      
+          /* Add a new listing section to the sidebar. */
+          var listings = document.getElementById("listings");
+          var listing = listings.appendChild(document.createElement("div"));
+          /* Assign a unique `id` to the listing. */
+          listing.id = "listing-" + store[0];
+          /* Assign the `item` class to each listing for styling. */
+          listing.className = "item";
+      
+          /* Add the link to the individual listing created above. */
+          var link = listing.appendChild(document.createElement("a"));
+          link.href = "#";
+          link.className = "title";
+          link.id = "link-" + store[0];
+      
+          /* Add details to the individual listing. */
+          var details = listing.appendChild(document.createElement("div"));
+      
+          /* Add details to the individual listing. */
+      
+          link.innerHTML = store[1];
+      
+          // if (store[10]) {
+          //   var roundedDistance = Math.round(store[10] * 100) / 100;
+          //   details.innerHTML +=
+          //     "<p><strong>" + roundedDistance + " miles away</strong></p>";
+          // }
+      
+          details.innerHTML += "<div class='phone-directions'>";
+      
+          details.innerHTML +=
+            '<div class="direction"><i class="fa fa-location-arrow" aria-hidden="true"></i> ' +
+            store[4] + '</div></div>';
+      
+          details.innerHTML += "</div>";
+      
+          
+      
+          /**
+           * Listen to the element and when it is clicked, do four things:
+           * 1. Update the `currentFeature` to the store associated with the clicked link
+           * 2. Fly to the point
+           * 3. Close all other popups and display popup for clicked store
+           * 4. Highlight listing in sidebar (and remove highlight for all other listings)
+           **/
+          listing.addEventListener("click", function (e) {
+            e.stopPropagation();
+e.preventDefault();
+
+            for (var i = 0; i < data.values.length; i++) {
+              if (this.id === "listing-" + data.values[i][0]) {
+                var clickedListing = data.values[i];
+                flyToStore(clickedListing);
+                createPopUp(clickedListing);
+              }
+            }
+            var activeItem = document.getElementsByClassName("active");
+            if (activeItem[0]) {
+              activeItem[0].classList.remove("active");
+            }
+            this.parentNode.classList.add("active");
+          });
+        });
+      }
+      
+      /**
+       * Use Mapbox GL JS's `flyTo` to move the camera smoothly
+       * a given center point.
+       **/
+      function flyToStore(currentFeature) {
+        map.flyTo({
+          center: [currentFeature[7], currentFeature[6]],
+          zoom: 15,
+        });
+      }
+      
+      /**
+       * Create a Mapbox GL JS `Popup`.
+       **/
+      function createPopUp(currentFeature) {
+        var popUps = document.getElementsByClassName("mapboxgl-popup");
+        if (popUps[0]) popUps[0].remove();
+      
+        var popupContent = "<h3 class='geocadder'>" + currentFeature[1] + "</h3>";
+      
+        popupContent += "<div class='phone-directions'>";
+      
+        popupContent +=
+          "<div class='direction'><a href='https://www.google.com/maps/dir//" + currentFeature[6] + "," + currentFeature[7] +
+          "'><i class='fa fa-location-arrow' aria-hidden='true'></i> " + currentFeature[4] + "</a></div>";
+      
+        if (currentFeature[11]) {
+          popupContent +=
+            "<div class='website'><a href='" +
+            currentFeature[11] +
+            "'><i class='fa fa-home' aria-hidden='true'></i> Website</a></div>";
+        }
+      
+        if (currentFeature[9]) {
+          popupContent +=
+            '<div class="website"><i class="fa fa-smile-o" aria-hidden="true"></i>' +
+            currentFeature[9] +
+            getRatingIcons(currentFeature[9]) + ' ' + currentFeature[8] + ' Google reviews'
+            "</div>";
+        }
+      
+        if (currentFeature[10]) {
+          popupContent += '<img class="popup-image" src="' + currentFeature[10] + '">';
+        }
+      
+        popupContent += "</div>";
+      
+        var popup = new mapboxgl.Popup({ closeOnClick: false })
+          .setLngLat([currentFeature[7], currentFeature[6]])
+          .setHTML(popupContent)
+          .addTo(map);
+      }
+      
+      // add custom geolocation button
+      $("#menu").append("<a href='#' id='geolocation-button'>My Location</a>");
+      
+      var geolocate = new mapboxgl.GeolocateControl({
+        positionOptions: {
+          enableHighAccuracy: true,
+        },
+        trackUserLocation: true,
+      });
+      
+      // Add the control to the map.
+      map.addControl(geolocate);
+      
+      $("#geolocation-button").click(function () {
+        // Initialize the geolocate control.
+      
+        geolocate.trigger(); //<- Automatically activates geolocation
+      });
+      // end adding custom geolcoation button
+      
+      function getRatingIcons(rating) {
+        var ratingIcons = '<i class="fa fa-location-arrow" aria-hidden="true"></i>';
+        switch (true) {
+          case rating >= 5:
+            ratingIcons =
+              '<i class="fa fa-star" aria-hidden="true"></i><i class="fa fa-star" aria-hidden="true"></i><i class="fa fa-star" aria-hidden="true"></i><i class="fa fa-star" aria-hidden="true"></i><i class="fa fa-star" aria-hidden="true"></i>';
+            break;
+          case rating >= 4.5:
+            ratingIcons =
+              '<i class="fa fa-star" aria-hidden="true"></i><i class="fa fa-star" aria-hidden="true"></i><i class="fa fa-star" aria-hidden="true"></i><i class="fa fa-star" aria-hidden="true"></i><i class="fa fa-star-half-o" aria-hidden="true"></i>';
+            break;
+          case rating >= 4:
+            ratingIcons =
+              '<i class="fa fa-star" aria-hidden="true"></i><i class="fa fa-star" aria-hidden="true"></i><i class="fa fa-star" aria-hidden="true"></i><i class="fa fa-star" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i>';
+            break;
+          case rating >= 3.5:
+            ratingIcons =
+              '<i class="fa fa-star" aria-hidden="true"></i><i class="fa fa-star" aria-hidden="true"></i><i class="fa fa-star" aria-hidden="true"></i><i class="fa fa-star-half-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i>';
+            break;
+          case rating >= 3:
+            ratingIcons =
+              '<i class="fa fa-star" aria-hidden="true"></i><i class="fa fa-star" aria-hidden="true"></i><i class="fa fa-star" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i>';
+            break;
+          case rating >= 2.5:
+            ratingIcons =
+              '<i class="fa fa-star" aria-hidden="true"></i><i class="fa fa-star" aria-hidden="true"></i><i class="fa fa-star-half-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i>';
+            break;
+          case rating >= 2:
+            ratingIcons =
+              '<i class="fa fa-star" aria-hidden="true"></i><i class="fa fa-star" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i>';
+            break;
+          case rating >= 1.5:
+            ratingIcons =
+              '<i class="fa fa-star" aria-hidden="true"></i><i class="fa fa-star-half-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i>';
+            break;
+            case rating >= 1:
+            ratingIcons =
+              '<i class="fa fa-star" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i>';
+            break;
+          case rating >= 0.5:
+            ratingIcons =
+              '<i class="fa fa-star-half-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i>';
+            break;
+            case rating >= 1:
+            ratingIcons =
+              '<i class="fa fa-star-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i>';
+            break;
+        }
+        return ratingIcons;
+      }
+      
+    </script>
+  </body>
+</html>
