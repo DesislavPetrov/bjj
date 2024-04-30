@@ -35,7 +35,7 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
     />
-    
+
     <!-- Turf.js plugin -->
     <script src="https://npmcdn.com/@turf/turf/turf.min.js"></script>
     <style>
@@ -52,6 +52,10 @@
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 } */
+
+      button.mapboxgl-ctrl-geolocate {
+        display: none !important;
+      }
 
       .sidebar {
         font-family: "Raleway", sans-serif;
@@ -238,7 +242,7 @@
         font-size: 17px !important;
       }
 
-      #geocoder > div > input{
+      #geocoder > div > input {
         padding-left: 33px;
       }
 
@@ -519,7 +523,6 @@
     </div>
     <div id="map" class="map"></div>
     <script>
-      
       /* This will let you use the .remove() function later on */
       if (!("remove" in Element.prototype)) {
         Element.prototype.remove = function () {
@@ -528,15 +531,15 @@
           }
         };
       }
-      
+
       const bounds = [
         [111.28367734257353, -43.580328925086256], // Southwest coordinates
         [153.78743723700643, -10.695725271701662], // Northeast coordinates
       ];
-      
+
       mapboxgl.accessToken =
         "pk.eyJ1IjoicmFtamVsaWNvIiwiYSI6ImNsdmYwaHIwcDBmN2wybW14NzJnMHQ4a2MifQ.cYNpZ4zCfpsioLhEo_3M8Q";
-      
+
       /**
        * Add the map to the page
        */
@@ -546,22 +549,22 @@
         zoom: 1,
         cooperativeGestures: true,
         customAttribution:
-          'created by <a style="padding: 0 3px 0 3px; color:#FFFFFF; background-color: #7d7deb;" href=http://www.geocadder.bg/en/>GEOCADDER</a>',
+          'created by <a style="padding: 0 3px 0 3px; color:#FFFFFF; background-color: #a4161a;" href=http://www.geocadder.bg/en/>GEOCADDER</a>',
       });
-      
+
       var isZipFound = false;
-      
+
       var markersCoordinates = [];
-      
+
       // Add zoom and rotation controls to the map.
       map.addControl(new mapboxgl.NavigationControl());
-      
+
       /**
        * Wait until the map loads to make changes to the map.
        */
       map.on("load", function (e) {
         map.fitBounds(bounds);
-      
+
         $.getJSON(
           "https://sheets.googleapis.com/v4/spreadsheets/1VbdlDF8ISHpER_cAUonutQw--tX0mz8l-0rqYgav__4/values/Sheet1!A2:L3000?majorDimension=ROWS&key=AIzaSyC7oHa-6USUppa1IVYATiRBDvU20GVtoBw",
           function (stores) {
@@ -569,7 +572,7 @@
               store[0] = i; // here is the Id of the store
               markersCoordinates.push([store[7], store[6]]);
             });
-      
+
             // fit bounds to all markers
             // var bounds = markersCoordinates.reduce(function (bounds, coord) {
             //   return bounds.extend(coord);
@@ -577,25 +580,25 @@
             //   markersCoordinates[1],
             //   markersCoordinates[0]
             // ));
-      
+
             // close all opened popups
             $(".marker").click(function () {
               $(".mapboxgl-popup").remove();
             });
-      
+
             $(".mapboxgl-canvas").click(function () {
               $(".mapboxgl-popup").remove();
             });
-      
+
             // map.fitBounds(bounds, {
             //   padding: 20,
             // });
-      
+
             // map.addSource('places', {
             //     'type': 'geojson',
             //     'data': stores
             // });
-      
+
             /**
              * Create a new MapboxGeocoder instance.
              */
@@ -608,7 +611,7 @@
               placeholder: "ZIP",
               marker: false,
             });
-      
+
             /**
              * Add all the things to the page:
              * - The location listings on the side of the page
@@ -616,11 +619,13 @@
              * - The markers onto the map
              */
             buildLocationList(stores);
-      
-            document.getElementById("geocoder").appendChild(geocoder.onAdd(map));
-      
+
+            document
+              .getElementById("geocoder")
+              .appendChild(geocoder.onAdd(map));
+
             addMarkers();
-      
+
             /**
              * Listen for when a geocoder result is returned. When one is returned:
              * - Calculate distances
@@ -636,7 +641,7 @@
               /* Get the coordinate of the search result */
               var searchResult = ev.result.geometry;
               var zipCodeTextResult = ev.result.text;
-      
+
               /**
                * Calculate distances:
                * For each store, use turf.disance to calculate the distance
@@ -651,7 +656,7 @@
                 //     enumerable: true,
                 //     configurable: true
                 // });
-      
+
                 if (store[9]) {
                   var zipCodesForDealerArray = store[9].split(", ");
                   zipCodesForDealerArray.forEach(function (zipCodesForDealer) {
@@ -665,14 +670,14 @@
                     }
                   });
                 }
-      
+
                 store[10] = turf.distance(
                   searchResult,
                   [store[7], store[6]],
                   options
                 );
               });
-      
+
               /**
                * Sort stores by distance from closest to the `searchResult`
                * to furthest.
@@ -686,7 +691,7 @@
                 }
                 return 0; // a must be equal to b
               });
-      
+
               if (currentStoreWithGivenZip) {
                 var foundIdx = stores.values.findIndex(
                   (el) => el[0] == currentStoreWithGivenZip[0]
@@ -694,7 +699,7 @@
                 stores.values.splice(foundIdx, 1);
                 stores.values.unshift(currentStoreWithGivenZip);
               }
-      
+
               // if (isZipFound === false) {
               //   map.flyTo({
               //     center: [stores.values[0][7], stores.values[0][6]],
@@ -705,7 +710,7 @@
                 center: [stores.values[0][7], stores.values[0][6]],
                 zoom: 15,
               });
-      
+
               /**
                * Rebuild the listings:
                * Remove the existing listings and build the location
@@ -716,16 +721,16 @@
                 listings.removeChild(listings.firstChild);
               }
               buildLocationList(stores);
-      
+
               /* Open a popup for the closest store. */
               createPopUp(stores.values[0]);
-      
+
               /** Highlight the listing for the closest store. */
               var activeListing = document.getElementById(
                 "listing-" + stores.values[0][0]
               );
               activeListing.classList.add("active");
-      
+
               /**
                * Adjust the map camera:
                * Get a bbox that contains both the geocoder result and
@@ -737,14 +742,15 @@
               // });
               currentStoreWithGivenZip = ""; // reset
             });
-      
+
             /**
              * Add a marker to the map for every store listing.
              **/
             function addMarkers() {
               /* For each feature in the GeoJSON object above: */
               stores.values.forEach(function (marker) {
-                var markerIconImage = "https://bjjinsights.com/wp-content/uploads/bjj-logo-20-20.webp";
+                var markerIconImage =
+                  "https://bjjinsights.com/wp-content/uploads/bjj-logo-20-20.webp";
                 // if (markerIconImage.indexOf("open?id") === -1) {
                 //   markerIconImage = markerIconImage.replace("file/d/", "uc?id=");
                 //   markerIconImage = markerIconImage.replace(
@@ -754,18 +760,18 @@
                 // } else {
                 //   markerIconImage = markerIconImage.replace("open?id=", "uc?id=");
                 // }
-      
+
                 /* Create a div element for the marker. */
                 var el = document.createElement("div");
                 /* Assign a unique `id` to the marker. */
                 el.id = "marker-" + marker[0];
                 /* Assign the `marker` class to each marker for styling. */
                 el.className = "marker";
-      
+
                 el.style.backgroundImage = "url(" + markerIconImage + ")";
                 el.style.width = "20px";
                 el.style.height = "20px";
-      
+
                 /**
                  * Create a marker using the div element
                  * defined above and add it to the map.
@@ -773,7 +779,7 @@
                 new mapboxgl.Marker(el, { offset: [0, -23] })
                   .setLngLat([marker[7], marker[6]])
                   .addTo(map);
-      
+
                 /**
                  * Listen to the element and when it is clicked, do three things:
                  * 1. Fly to the point
@@ -799,14 +805,14 @@
           }
         );
       });
-      
+
       /**
        * Using the coordinates (lng, lat) for
        * (1) the search result and
        * (2) the closest store
        * construct a bbox that will contain both points
        */
-      
+
       // function getBbox(sortedStores, storeIdentifier, searchResult) {
       //   var lats = [
       //     sortedStores.values[storeIdentifier][6],
@@ -839,7 +845,7 @@
       //     [sortedLons[1], sortedLats[1]],
       //   ];
       // }
-      
+
       /**
        * Add a listing for each store to the sidebar.
        **/
@@ -850,7 +856,7 @@
            * which will be used several times below.
            **/
           // var prop = store.values;
-      
+
           /* Add a new listing section to the sidebar. */
           var listings = document.getElementById("listings");
           var listing = listings.appendChild(document.createElement("div"));
@@ -858,36 +864,35 @@
           listing.id = "listing-" + store[0];
           /* Assign the `item` class to each listing for styling. */
           listing.className = "item";
-      
+
           /* Add the link to the individual listing created above. */
           var link = listing.appendChild(document.createElement("a"));
           link.href = "#";
           link.className = "title";
           link.id = "link-" + store[0];
-      
+
           /* Add details to the individual listing. */
           var details = listing.appendChild(document.createElement("div"));
-      
+
           /* Add details to the individual listing. */
-      
+
           link.innerHTML = store[1];
-      
+
           // if (store[10]) {
           //   var roundedDistance = Math.round(store[10] * 100) / 100;
           //   details.innerHTML +=
           //     "<p><strong>" + roundedDistance + " miles away</strong></p>";
           // }
-      
+
           details.innerHTML += "<div class='phone-directions'>";
-      
+
           details.innerHTML +=
             '<div class="direction"><i class="fa fa-location-arrow" aria-hidden="true"></i> ' +
-            store[4] + '</div></div>';
-      
+            store[4] +
+            "</div></div>";
+
           details.innerHTML += "</div>";
-      
-          
-      
+
           /**
            * Listen to the element and when it is clicked, do four things:
            * 1. Update the `currentFeature` to the store associated with the clicked link
@@ -897,7 +902,7 @@
            **/
           listing.addEventListener("click", function (e) {
             e.stopPropagation();
-e.preventDefault();
+            e.preventDefault();
 
             for (var i = 0; i < data.values.length; i++) {
               if (this.id === "listing-" + data.values[i][0]) {
@@ -914,7 +919,7 @@ e.preventDefault();
           });
         });
       }
-      
+
       /**
        * Use Mapbox GL JS's `flyTo` to move the camera smoothly
        * a given center point.
@@ -925,71 +930,82 @@ e.preventDefault();
           zoom: 15,
         });
       }
-      
+
       /**
        * Create a Mapbox GL JS `Popup`.
        **/
       function createPopUp(currentFeature) {
         var popUps = document.getElementsByClassName("mapboxgl-popup");
         if (popUps[0]) popUps[0].remove();
-      
-        var popupContent = "<h3 class='geocadder'>" + currentFeature[1] + "</h3>";
-      
+
+        var popupContent =
+          "<h3 class='geocadder'>" + currentFeature[1] + "</h3>";
+
         popupContent += "<div class='phone-directions'>";
-      
+
         popupContent +=
-          "<div class='direction'><a href='https://www.google.com/maps/dir//" + currentFeature[6] + "," + currentFeature[7] +
-          "'><i class='fa fa-location-arrow' aria-hidden='true'></i> " + currentFeature[4] + "</a></div>";
-      
+          "<div class='direction'><a href='https://www.google.com/maps/dir//" +
+          currentFeature[6] +
+          "," +
+          currentFeature[7] +
+          "'><i class='fa fa-location-arrow' aria-hidden='true'></i> " +
+          currentFeature[4] +
+          "</a></div>";
+
         if (currentFeature[11]) {
           popupContent +=
             "<div class='website'><a href='" +
             currentFeature[11] +
             "'><i class='fa fa-home' aria-hidden='true'></i> Website</a></div>";
         }
-      
+
         if (currentFeature[9]) {
           popupContent +=
             '<div class="website"><i class="fa fa-smile-o" aria-hidden="true"></i>' +
             currentFeature[9] +
-            getRatingIcons(currentFeature[9]) + ' ' + currentFeature[8] + ' Google reviews'
-            "</div>";
+            getRatingIcons(currentFeature[9]) +
+            " " +
+            currentFeature[8] +
+            " Google reviews";
+          ("</div>");
         }
-      
+
         if (currentFeature[10]) {
-          popupContent += '<img class="popup-image" src="' + currentFeature[10] + '">';
+          popupContent +=
+            '<img class="popup-image" src="' + currentFeature[10] + '">';
         }
-      
+
         popupContent += "</div>";
-      
+
         var popup = new mapboxgl.Popup({ closeOnClick: false })
           .setLngLat([currentFeature[7], currentFeature[6]])
           .setHTML(popupContent)
           .addTo(map);
       }
-      
+
       // add custom geolocation button
       $("#menu").append("<a href='#' id='geolocation-button'>My Location</a>");
-      
+
       var geolocate = new mapboxgl.GeolocateControl({
         positionOptions: {
           enableHighAccuracy: true,
         },
         trackUserLocation: true,
       });
-      
+
       // Add the control to the map.
       map.addControl(geolocate);
-      
+
       $("#geolocation-button").click(function () {
         // Initialize the geolocate control.
-      
+
         geolocate.trigger(); //<- Automatically activates geolocation
       });
       // end adding custom geolcoation button
-      
+
       function getRatingIcons(rating) {
-        var ratingIcons = '<i class="fa fa-location-arrow" aria-hidden="true"></i>';
+        var ratingIcons =
+          '<i class="fa fa-location-arrow" aria-hidden="true"></i>';
         switch (true) {
           case rating >= 5:
             ratingIcons =
@@ -1023,7 +1039,7 @@ e.preventDefault();
             ratingIcons =
               '<i class="fa fa-star" aria-hidden="true"></i><i class="fa fa-star-half-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i>';
             break;
-            case rating >= 1:
+          case rating >= 1:
             ratingIcons =
               '<i class="fa fa-star" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i>';
             break;
@@ -1031,14 +1047,13 @@ e.preventDefault();
             ratingIcons =
               '<i class="fa fa-star-half-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i>';
             break;
-            case rating >= 1:
+          case rating >= 1:
             ratingIcons =
               '<i class="fa fa-star-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i>';
             break;
         }
         return ratingIcons;
       }
-      
     </script>
   </body>
 </html>
