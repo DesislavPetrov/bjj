@@ -549,7 +549,7 @@
         zoom: 1,
         cooperativeGestures: true,
         customAttribution:
-          'created by <a style="padding: 0 3px 0 3px; color:#FFFFFF; background-color: #a4161a;" target="_blank"  href=http://www.geocadder.bg/en/>GEOCADDER</a>',
+          'created by <a style="padding: 0 3px 0 3px; color:#FFFFFF; background-color: #a4161a;" onclick='window.open();'  href=http://www.geocadder.bg/en/>GEOCADDER</a>',
       });
 
       var isZipFound = false;
@@ -954,7 +954,7 @@
 
         if (currentFeature[11]) {
           popupContent +=
-            "<div class='website'><a target='_blank'  href='" +
+            "<div class='website'><a onclick='window.open();'  href='" +
             currentFeature[11] +
             "'><i class='fa fa-home' aria-hidden='true'></i> Website</a></div>";
         }
@@ -984,7 +984,7 @@
       }
 
       // add custom geolocation button
-      $("#menu").append("<a target='_blank'  href='#' id='geolocation-button'>My Location</a>");
+      $("#menu").append("<a  href='#' id='geolocation-button'>My Location</a>");
 
       var geolocate = new mapboxgl.GeolocateControl({
         positionOptions: {
